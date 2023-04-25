@@ -1,0 +1,256 @@
+<p-card>
+    <ng-template pTemplate="header">
+        <div class="flex flex-wrap text-justify mr-4 ml-4">
+            <p>
+                <!-- En este sitio web puedes encontrar herramientas para calcular tu nota de forma fácil y rápida. Con
+                ellas, podrás saber qué nota necesitas en tu examen final o en cualquier otra evaluación que tengas
+                pendiente para alcanzar la calificación que deseas en tu materia. ¡Así podrás prepararte mejor y lograr
+                tus objetivos académicos! -->                
+            </p>
+            <h5>Empieza a ingresar tus notas</h5>
+        </div>
+    </ng-template>
+
+    <div class="m-2 md:m-5 lg:m-5 xl:m-5">
+        <div *ngFor="let grade of grades;let i = index;trackBy:trackByIdx" class="grid form-grid p-fluid mb-4">
+
+            <div class="col-6">
+                <span class="p-float-label">
+                    <input [class]="!isValidScore(grades[i]).isValid ? 'ng-invalid ng-dirty' : null" type="number"
+                        [min]="gradesConfiguration!.minGrade" [max]="gradesConfiguration!.maxGrade" step="0.01"
+                        pInputText pKeyFilter="int" [id]="'score' + i" [(ngModel)]="grades[i].score" required />
+                    <label [htmlFor]="'score' + i">Nota</label>
+                </span>
+                <small class="p-error">{{isValidScore(grades[i]).message}}</small>
+
+            </div>
+
+            <div class="col-5">
+                <span class="p-float-label">
+                    <input [class]="!isValidPercentage(grades[i]).isValid ? 'ng-invalid ng-dirty' : null" pInputText
+                        type="number" [min]="0" [max]="100" step="1" pKeyFilter="int" [id]="'percent' + i" suffix=" %"
+                        [(ngModel)]="grades[i].percentage" required />
+                    <label [htmlFor]="'percent' + i">Porcentaje %</label>
+                </span>
+                <small class="p-error">{{isValidPercentage(grades[i]).message}}</small>
+            </div>
+            <div *ngIf="i != 0" class="col-1">
+                <p-button icon="pi pi-trash" styleClass="p-button-text p-button-danger"
+                    (click)="deleteGrade(i)"></p-button>
+            </div>
+
+        </div>
+        <div class="flex justify-content-start">
+
+            <p-button (click)="addNewGrade()" label="Agregar nota" styleClass="p-button-sm p-button-text"
+                icon="pi pi-plus" iconPos="left"></p-button>
+
+        </div>
+
+        <div *ngIf="infoMessage" class="card m-5 scalein animation-duration-300">
+            <p-messages severity="info">
+                <ng-template pTemplate>
+                    <p class="pl-2 m-0">
+                        {{infoMessage}}
+                    </p>
+                </ng-template>
+            </p-messages>
+        </div>
+
+        <div *ngIf="!isValidGrades().isValid" class="card m-5 scalein animation-duration-300">
+            <p-messages severity="error">
+                <ng-template pTemplate>
+                    <p class="pl-2 m-0">
+                        {{isValidGrades().message}}
+                    </p>
+                </ng-template>
+            </p-messages>
+        </div>
+        <div class="flex justify-content-center mt-4">
+            <p-button label="Calcular" (click)="calculateFinalGrade()" [disabled]="!isValidGrades().isValid"
+                styleClass="p-button" icon="pi pi-calculator" iconPos="right"></p-button>
+        </div>
+
+
+    </div>
+
+
+
+    <ng-template pTemplate="footer">
+        <div class="flex justify-content-end">
+
+            <p-button label="Configuración" styleClass="p-button-sm p-button-text p-button-secondary" icon="pi pi-cog"
+                iconPos="right" (click)="openConfigModal()"></p-button>
+
+        </div>
+
+    </ng-template>
+
+</p-card>
+
+<p-dialog header="Configuración de parámetros" [(visible)]="showConfigModal" [closable]="false" [modal]="true"
+    styleClass="vw-100" [draggable]="false" [resizable]="false">
+    <div class="m-5">
+        <div class="grid form-grid p-fluid mb-3">
+
+            <div class="col-6 mb-3">
+                <span class="p-float-label">
+                    <p-inputNumber [min]="0" [(ngModel)]="gradesConfiguration!.minGrade"
+                        [class]="!gradesConfiguration!.validateMinGrade().isValid ? 'ng-invalid ng-dirty' : null"
+                        inputId="grade" [useGrouping]="false">
+                    </p-inputNumber>
+                    <label htmlFor="number-input">Nota min.</label>
+                </span>
+            </div>
+
+            <div class="col-6 mb-3">
+                <span class="p-float-label">
+                    <p-inputNumber [min]="gradesConfiguration!.minGrade" [(ngModel)]="gradesConfiguration!.maxGrade"
+                        [class]="!gradesConfiguration!.validateMaxGrade().isValid ? 'ng-invalid ng-dirty' : null"
+                        inputId="grade" [useGrouping]="false"> </p-inputNumber>
+                    <label htmlFor="number-input">Nota max.</label>
+                </span>
+            </div>
+
+            <div class="col-6 mb-3">
+                <span class="p-float-label">
+                    <p-inputNumber [(ngModel)]="gradesConfiguration!.minGradeToPass" inputId="grade"
+                        [class]="!gradesConfiguration!.validateMinGradeToPass().isValid ? 'ng-invalid ng-dirty' : null"
+                        [useGrouping]="false"> </p-inputNumber>
+                    <label htmlFor="number-input">Nota min. para aprobar</label>
+                </span>
+            </div>
+
+            <div class="col-6 mb-3">
+                <span class="p-float-label">
+                    <p-inputNumber [(ngModel)]="gradesConfiguration!.gradeExpected" inputId="grade"
+                        [class]="!gradesConfiguration!.validateGradeExpected().isValid ? 'ng-invalid ng-dirty' : null"
+                        [useGrouping]="false"> </p-inputNumber>
+                    <label htmlFor="number-input">Nota final que deseo</label>
+                </span>
+            </div>
+        </div>
+
+
+    </div>
+    <div *ngIf="!gradesConfiguration?.isValidConfiguration()" class="card m-5 scalein animation-duration-300">
+        <p-messages severity="error">
+            <ng-template pTemplate>
+                <ul class="pl-2 m-0">
+                    <li class="scalein animation-duration-300" *ngIf="!gradesConfiguration!.validateMinGrade().isValid">
+                        {{gradesConfiguration!.validateMinGrade().message}}</li>
+                    <li class="mt-1 scalein animation-duration-300"
+                        *ngIf="!gradesConfiguration!.validateMaxGrade().isValid">
+                        {{gradesConfiguration!.validateMaxGrade().message}}</li>
+                    <li class="mt-1 scalein animation-duration-300"
+                        *ngIf="!gradesConfiguration!.validateMinGradeToPass().isValid">
+                        {{gradesConfiguration!.validateMinGradeToPass().message}}</li>
+                    <li class="mt-1 scalein animation-duration-300"
+                        *ngIf="!gradesConfiguration!.validateGradeExpected().isValid">
+                        {{gradesConfiguration!.validateGradeExpected().message}}</li>
+                </ul>
+            </ng-template>
+        </p-messages>
+    </div>
+    <ng-template pTemplate="footer">
+        <div class="flex justify-content-end">
+
+            <p-button label="Cancelar" styleClass="p-button-sm p-button-text p-button-secondary" icon="pi pi-times"
+                iconPos="right" (click)="closeConfigModal()"></p-button>
+
+            <p-button label="Aceptar" styleClass="p-button-sm p-button p-button" icon="pi pi-check" iconPos="right"
+                (click)="showConfigModal = false"></p-button>
+
+        </div>
+
+    </ng-template>
+
+</p-dialog>
+
+
+<p-dialog *ngIf="severity" [header]="messageResponse" [(visible)]="showReponseModal" [closable]="true" [modal]="true"
+    position="top" [draggable]="false" [resizable]="false" [style]="{'width':'80vh'}">
+    <div class="m-5 flex flex-column">
+
+        <div *ngIf="severity === 'bad'">
+            <img style="width: 100%;" src="https://media.giphy.com/media/9xjZfGoV4AXPKeHjBg/giphy.gif" alt="">
+
+            <p>¡Ay caramba! <br><br> Necesitarías sacar <strong>{{finalGrade}}</strong> en el
+                <strong>{{remainingPercentage / 100
+                    |
+                    percent}}</strong>. No te desanimes, si te concentras en tus estudios y
+                pones tu mayor esfuerzo, estoy seguro de que el otro semestre es tuyo 😅. ¡Ánimo!
+            </p>
+        </div>
+
+        <div *ngIf="severity === 'normal'">
+
+            <img style="width: 100%;" src="https://media.giphy.com/media/lAS7xHdf4G4u6D95ls/giphy.gif" alt="">
+            <p>
+                ¡Vamos, que se puede! <br> <br> Solo necesitas sacar una calificación de <strong>{{finalGrade}}</strong>
+                en el <strong>{{remainingPercentage / 100
+                    |
+                    percent}}</strong> restante del curso.
+                Mantén una actitud positiva, trabaja duro y no dejes que nada te detenga en tu camino hacia el éxito
+                académico.
+            </p>
+        </div>
+
+        <div *ngIf="severity === 'good'">
+
+            <img style="width: 100%;" src="https://media.giphy.com/media/11ISwbgCxEzMyY/giphy.gif" alt="">
+
+            <p>
+                ¡Adelante, sigue así! <br><br> No pierdas de vista tu objetivo de obtener una calificación de
+                <strong>{{finalGrade}}</strong> en el <strong>{{remainingPercentage / 100
+                    |
+                    percent}}</strong>
+                restante del curso. Mantén tu motivación y enfoque en tus estudios, y verás que lo lograrás con éxito.
+            </p>
+
+        </div>
+
+
+        <div *ngIf="severity === 'great'">
+
+            <img style="width: 100%;" src="https://media.giphy.com/media/3o7abIileRivlGr8Nq/giphy.gif" alt="">
+
+            <p>
+                ¡Que chimba, ya coronaste! <br><br> Ya no necesitas sacar nota para el final, pero eso no significa que
+                debas
+                bajar la guardia. Sigue esforzándote para mantener tus habilidades y deja tu nota final bien alta.
+
+            </p>
+
+        </div>
+
+        <div *ngIf="severity==='finished'">
+
+            <img style="width: 100%;" src="https://media.giphy.com/media/3o85xJWqnjH1Xu5rmE/giphy.gif" alt="">
+
+            <p>
+                ¿Bueno o malo? 🤔<br><br> No sabemos si es bueno o malo que ya hayas terminado el curso. ¿Será que te
+                fue
+                bien
+                y
+                ya no necesitas sacar nota? ¿O será que te fue mal y ya no tienes oportunidad de salvar el semestre?
+
+                Bueno, no importa, todo queda a tu criterio personal.
+                Lo que sí sabemos es que se vienen... <strong>¡Vacaciones!</strong> 🥳🥳🥳
+                <br><br>
+
+                Ah, y por cierto... Tu nota quedó <strong>{{finalGrade}}</strong> 😅
+            </p>
+
+        </div>
+
+    </div>
+    <ng-template pTemplate="footer">
+        <div class="flex justify-content-end">
+            <p-button label="Cerrar" styleClass="p-button-sm p-button-text"
+                (click)="showReponseModal = false"></p-button>
+        </div>
+
+    </ng-template>
+
+</p-dialog>
