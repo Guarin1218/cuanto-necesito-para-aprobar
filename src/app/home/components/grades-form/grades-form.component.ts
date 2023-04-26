@@ -275,4 +275,11 @@ export class GradesFormComponent {
 
   }
 
+  saveConfig(){
+
+    if(!this.gradesConfiguration!.isValidConfiguration()) return;
+
+    this.showConfigModal = false
+  }
+
 }

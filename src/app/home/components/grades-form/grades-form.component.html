@@ -5,7 +5,7 @@
                 <!-- En este sitio web puedes encontrar herramientas para calcular tu nota de forma fácil y rápida. Con
                 ellas, podrás saber qué nota necesitas en tu examen final o en cualquier otra evaluación que tengas
                 pendiente para alcanzar la calificación que deseas en tu materia. ¡Así podrás prepararte mejor y lograr
-                tus objetivos académicos! -->                
+                tus objetivos académicos! -->
             </p>
             <h5>Empieza a ingresar tus notas</h5>
         </div>
@@ -95,37 +95,36 @@
 
             <div class="col-6 mb-3">
                 <span class="p-float-label">
-                    <p-inputNumber [min]="0" [(ngModel)]="gradesConfiguration!.minGrade"
+                    <input pInputText [min]="0" [(ngModel)]="gradesConfiguration!.minGrade"
                         [class]="!gradesConfiguration!.validateMinGrade().isValid ? 'ng-invalid ng-dirty' : null"
-                        inputId="grade" [useGrouping]="false">
-                    </p-inputNumber>
+                        id="grade" type="number" step="0.01" required />
                     <label htmlFor="number-input">Nota min.</label>
                 </span>
             </div>
 
             <div class="col-6 mb-3">
                 <span class="p-float-label">
-                    <p-inputNumber [min]="gradesConfiguration!.minGrade" [(ngModel)]="gradesConfiguration!.maxGrade"
+                    <input pInputText [min]="gradesConfiguration!.minGrade" [(ngModel)]="gradesConfiguration!.maxGrade"
                         [class]="!gradesConfiguration!.validateMaxGrade().isValid ? 'ng-invalid ng-dirty' : null"
-                        inputId="grade" [useGrouping]="false"> </p-inputNumber>
+                        id="max-grade" type="number" step="0.01" required />
                     <label htmlFor="number-input">Nota max.</label>
                 </span>
             </div>
 
             <div class="col-6 mb-3">
                 <span class="p-float-label">
-                    <p-inputNumber [(ngModel)]="gradesConfiguration!.minGradeToPass" inputId="grade"
+                    <input pInputText [(ngModel)]="gradesConfiguration!.minGradeToPass" inputId="grade"
                         [class]="!gradesConfiguration!.validateMinGradeToPass().isValid ? 'ng-invalid ng-dirty' : null"
-                        [useGrouping]="false"> </p-inputNumber>
+                        id="min-grade-to-pass" type="number" step="0.01" required />
                     <label htmlFor="number-input">Nota min. para aprobar</label>
                 </span>
             </div>
 
             <div class="col-6 mb-3">
                 <span class="p-float-label">
-                    <p-inputNumber [(ngModel)]="gradesConfiguration!.gradeExpected" inputId="grade"
+                    <input pInputText [(ngModel)]="gradesConfiguration!.gradeExpected" inputId="grade"
                         [class]="!gradesConfiguration!.validateGradeExpected().isValid ? 'ng-invalid ng-dirty' : null"
-                        [useGrouping]="false"> </p-inputNumber>
+                        id="grade-expected" type="number" step="0.01" required />
                     <label htmlFor="number-input">Nota final que deseo</label>
                 </span>
             </div>
@@ -158,8 +157,9 @@
             <p-button label="Cancelar" styleClass="p-button-sm p-button-text p-button-secondary" icon="pi pi-times"
                 iconPos="right" (click)="closeConfigModal()"></p-button>
 
-            <p-button label="Aceptar" styleClass="p-button-sm p-button p-button" icon="pi pi-check" iconPos="right"
-                (click)="showConfigModal = false"></p-button>
+            <p-button [disabled]="!gradesConfiguration!.isValidConfiguration()" label="Aceptar"
+                styleClass="p-button-sm" icon="pi pi-check" iconPos="right"
+                (click)="saveConfig()"></p-button>
 
         </div>
 
